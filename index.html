@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Mina serier</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: en smal läskolumn, två avsnitt, varje serie en rad med betyg i högerkant */
+:root{
+  --bg:#eef0f1; --surface:#fbfcfc; --fg:#1d2428; --muted:#5d6970; --line:#d3d9dc;
+  --accent:#2f5d62; --star:#b9832a; --star-off:#d5d9db; --warn:#94631a;
+  --display:"Young Serif", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14191c; --surface:#1c2327; --fg:#e7ecee; --muted:#9aa7ae; --line:#2e383d;
+  --accent:#8fc3c8; --star:#e2b257; --star-off:#38444a; --warn:#e2b257; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14191c; --surface:#1c2327; --fg:#e7ecee; --muted:#9aa7ae; --line:#2e383d;
+  --accent:#8fc3c8; --star:#e2b257; --star-off:#38444a; --warn:#e2b257; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:680px;margin:0 auto;display:grid;gap:52px}
+header{display:grid;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2rem,6vw,2.75rem);line-height:1.1;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:60ch}
+section{display:grid;gap:18px}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+h2{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:0}
+.toggle{all:unset;display:inline-flex;align-items:center;gap:12px;cursor:pointer;border-radius:4px}
+.toggle:hover{color:var(--accent)}
+.toggle:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.chev{width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transition:transform .15s}
+.toggle .chev{transform:translateY(-3px) rotate(45deg)}
+.toggle[aria-expanded="false"] .chev{transform:rotate(-45deg)}
+@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.count{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:0}
+li{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+li:last-child,li.last{border-bottom:0}
+li.grp{display:block;padding:22px 0 8px;font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);font-weight:600}
+li.grp:first-child{padding-top:12px}
+.headright{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.sortlbl{font-size:.85rem;color:var(--muted)}
+.sort{font:500 .875rem var(--body);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+.sort:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.name{font-weight:600;min-width:0}
+.meta{grid-column:1/-1;color:var(--muted);font-size:.9rem;min-width:0}
+.land{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.where{font-size:.85rem;color:var(--muted);text-align:right}
+.why{grid-column:1/-1;font-size:.85rem;color:var(--muted);padding-left:16px}
+.rating{display:flex;align-items:center;gap:10px}
+.stars{display:flex;gap:3px}
+.stars span{width:12px;height:12px;border-radius:50%;background:var(--star-off);position:relative;overflow:hidden}
+.stars span i{position:absolute;inset:0 auto 0 0;background:var(--star)}
+.num{font-variant-numeric:tabular-nums;font-weight:600;min-width:2.2em;text-align:right}
+.rec li{grid-template-columns:1fr auto}
+.top .name::after{content:"Börja här";margin-left:8px;font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--surface);background:var(--accent);padding:2px 7px;border-radius:999px;vertical-align:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 22px}
+footer{color:var(--muted);font-size:.85rem}
+.filters{display:grid;gap:14px}
+.frow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.flabel{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:3.6em}
+.chip{font:500 .875rem var(--body);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.empty{color:var(--muted);padding:12px 0;margin:0}
+.search{font:400 1rem var(--body);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;width:100%;box-sizing:border-box}
+.search::placeholder{color:var(--muted)}
+.searchwrap{position:relative;margin-bottom:10px}
+.searchwrap .search{margin-bottom:0;padding-right:40px}
+.search::-webkit-search-cancel-button{display:none}
+.qclear{all:unset;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;display:grid;place-items:center;border-radius:50%;font-size:1.25rem;line-height:1;color:var(--muted);cursor:pointer}
+.qclear:hover{color:var(--fg);background:var(--bg)}
+.qclear:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.qclear[hidden]{display:none}
+.search{margin-bottom:10px}
+.search:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:16px;margin-block:-16px;border-bottom:1px solid transparent}
+.filters.stuck{border-bottom-color:var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.more{all:unset;display:inline-flex;align-items:center;gap:10px;cursor:pointer;border-radius:3px}
+.more:hover{color:var(--accent)}
+.more:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.more .chev{width:6px;height:6px;border-width:1.5px;flex:none;transform:rotate(-45deg)}
+.more[aria-expanded="true"] .chev{transform:translateY(-2px) rotate(45deg)}
+.panel{grid-column:1/-1;display:grid;gap:10px;padding:10px 0 4px 16px;font-size:.92rem;line-height:1.6}
+.panel p{margin:0;max-width:60ch}
+.pmeta{color:var(--muted);font-size:.85rem}
+.pmeta:empty{display:none}
+.cast{font-size:inherit}
+.cast{display:grid;gap:6px}
+.castlbl{font-size:.85rem;color:var(--muted)}
+.actors{display:flex;flex-wrap:wrap;gap:6px}
+.actor{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--accent);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+.actor svg{flex:none}
+.actor{position:relative}
+.tip{position:absolute;left:0;bottom:calc(100% + 6px);width:max-content;max-width:min(240px,70vw);white-space:normal;font-size:.85rem;color:var(--surface);background:var(--fg);border-radius:6px;padding:5px 9px;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s;z-index:3}
+.actor:hover .tip,.actor:focus-visible .tip{opacity:1;visibility:visible}
+@media (prefers-reduced-motion:reduce){.tip{transition:none}}
+.actor:hover{border-color:var(--accent)}
+.actor:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.antal{font-size:.72rem;font-weight:600;color:var(--surface);background:var(--accent);border-radius:999px;min-width:1.4em;padding:0 5px;text-align:center;line-height:1.5;font-variant-numeric:tabular-nums}
+.actorbar{margin:0;font-size:.9rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.actorbar a{color:var(--accent)}
+.recmore{margin:0;font-size:.92rem}
+.sub{margin:-6px 0 0;color:var(--muted);font-size:.85rem;max-width:60ch}
+.recmore a{color:var(--accent);font-weight:400;text-underline-offset:3px}
+.clear{all:unset;cursor:pointer;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.clear:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rec{scroll-margin-top:240px}
+.src{color:var(--muted);font-size:.85rem}
+.panel .pmeta a.nyhet{font-weight:400}
+.src a{font-weight:400}
+.warn{color:var(--warn);font-weight:400}
+.panel a{color:var(--accent);font-weight:400;text-underline-offset:3px;justify-self:start}
+.panel a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:440px){ .where{grid-column:1/-1;text-align:left} li{grid-template-columns:1fr} .rating{justify-content:flex-start} }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Mina serier</h1>
+    <p class="lead">Realistiskt, relationsdrivet och helst brittiskt eller nordiskt. Betyg på en skala 1–5.</p>
+  </header>
+
+  <div class="filters" aria-label="Filter">
+    <div class="searchwrap">
+      <input type="search" id="q" class="search" placeholder="Sök på titel eller skådespelare" aria-label="Sök på titel eller skådespelare" autocomplete="off">
+      <button type="button" class="qclear" id="qclear" aria-label="Rensa sökningen" hidden>×</button>
+    </div>
+    <div class="frow" role="group" aria-label="Land">
+      <span class="flabel">Land</span>
+      <button class="chip" id="f-alla" data-land="" aria-pressed="true">Alla</button>
+      <button class="chip" id="f-bi" data-land="bi" aria-pressed="false">Brittiska och irländska</button>
+      <button class="chip" id="f-dk" data-land="dk" aria-pressed="false">Danska</button>
+      <button class="chip" id="f-se" data-land="se" aria-pressed="false">Svenska</button>
+    </div>
+    <div class="frow" role="group" aria-label="Typ">
+      <span class="flabel">Typ</span>
+      <button class="chip" id="f-mork" data-flag="mork" aria-pressed="false">Mörka</button>
+      <button class="chip" id="f-ejkrim" data-flag="ejkrim" aria-pressed="false">Inte krim</button>
+      <button class="chip" id="f-komedi" data-flag="komedi" aria-pressed="false">Komedi</button>
+    </div>
+  </div>
+
+  <section class="rec">
+    <div class="head"><h2><button class="toggle" id="t-rec" aria-expanded="false" aria-controls="rec-box"><span class="chev" aria-hidden="true"></span>Förslag från Claude</button></h2><span class="count" id="rec-count"></span></div>
+    <p class="sub">Utvalda utifrån mina betygsatta serier: serier som liknar dem jag gett högt betyg, och serier med skådespelare från dem.</p>
+    <div class="card" id="rec-box" hidden><ul id="rec"></ul></div>
+    <p class="recmore" id="rec-more" hidden></p>
+  </section>
+
+  <section>
+    <div class="head"><h2><button class="toggle" id="t-seen" aria-expanded="false" aria-controls="seen-box"><span class="chev" aria-hidden="true"></span>Betygsatta</button></h2><div class="headright"><label class="sortlbl" for="sort">Sortera</label><select id="sort" class="sort"><option value="betyg">Betyg</option><option value="titel">Titel A–Ö</option><option value="land">Land</option></select><span class="count" id="seen-count"></span></div></div>
+    <div class="card" id="seen-box" hidden><ul id="seen"></ul></div>
+  </section>
+
+  <footer>Uppdaterad 17 oktober 2026. Beskrivningarna är kontrollerade mot kanalens egen sida i första hand och Wikipedia i andra hand. Var serierna finns ändras ofta, så kolla i Apple TV-appen.</footer>
+</div>
+
+<script>
+const rec = [
+  {"n": "Time", "l": "Brittisk", "d": "Varje säsong är en egen berättelse från ett fängelse. I den första möter en fånge plågad av skuld en vakt som pressas av en farlig medfånge.", "v": "Med Stephen Graham från Adolescence (5) och Jodie Whittaker från Broadchurch (5). Säsong 3 har David Tennant från Broadchurch och Siobhan Finneran från Happy Valley."},
+  {"n": "Des", "l": "Brittisk", "d": "Verkligt fall. Polisen griper seriemördaren Dennis Nilsen i London 1983, efter att kvarlevor hittats i ett avlopp nära hans hem.", "v": "Med David Tennant från Broadchurch (5)."},
+  {"n": "The Long Shadow", "l": "Brittisk", "d": "Verkligt fall. Den fem år långa jakten på seriemördaren Peter Sutcliffe, kallad Yorkshire Ripper.", "v": "Med David Morrissey från Sherwood (5)."},
+  {"n": "River", "l": "Brittisk", "d": "En sörjande kommissarie i London ser syner av sin mördade kollega medan han jagar hennes mördare.", "v": "Med Nicola Walker från Unforgotten (5)."},
+  {"n": "A Confession", "l": "Brittisk", "d": "Verkligt fall. Kommissarie Steve Fulcher jagar en försvunnen 22-åring, och jakten leder till att Christopher Halliwell grips.", "v": "Med Martin Freeman från The Responder (5) och Siobhan Finneran från Happy Valley (5)."},
+  {"n": "The Accident", "l": "Walesisk", "d": "En walesisk ort kräver rättvisa efter att flera barn dött i en explosion på en byggarbetsplats.", "v": "Med Sarah Lancashire från Happy Valley (5) och Sidse Babett Knudsen från Borgen (4,5)."},
+  {"n": "Top Boy", "l": "Brittisk", "d": "Knarklangarna Dushane och Sully och andra som dras in i droghandel och gängvåld på ett bostadsområde i Hackney i London.", "v": "Med Ashley Walters från Adolescence (5)."},
+  {"n": "Händelser vid vatten", "l": "Svensk", "d": "Två turister hittas mördade i ett tält i fjällen i norra Sverige 1973, och det olösta fallet förföljer läraren Annie i många år.", "v": "Liknar Morden (4,5). Med Pernilla August från Efterforskningen (3,5)."},
+  {"n": "Arvingerne", "l": "Dansk", "d": "Fyra syskon hamnar i uppbrott och konflikter när de ska göra upp om arvet efter sin mamma på gården Grønnegaard.", "v": "Liknar Krönikan (5), ett danskt familjedrama."},
+  {"n": "Kalifat", "l": "Svensk", "d": "En agent på Säpo försöker få information om en planerad terrorattack i Sverige från en svensk kvinna som lever under IS i Syrien.", "v": "Med Gizem Erdogan från Tunna blå linjen (4,5)."},
+  {"n": "Herrens veje", "l": "Dansk", "d": "En dansk prästsläkt, där en prästs misslyckade försök att bli biskop i Köpenhamn sätter igång konflikter med hans söner och hans fru.", "v": "Med Lars Mikkelsen från Den som dräper (4)."},
+  {"n": "Mayflies", "l": "Skotsk", "d": "Två gamla vänner som träffades i Skottland 1986 möts igen trettio år senare, när den ene berättar att han har obotlig cancer.", "v": "Med Martin Compston från Line of duty (4) och Ashley Jensen från Shetland (3,8)."},
+  {"n": "Trigger Point", "l": "Brittisk", "d": "En före detta militär bombtekniker leder en bombgrupp inom Londonpolisen och oskadliggör terroristers sprängladdningar.", "v": "Med Vicky McClure från Line of duty (4)."},
+  {"n": "Innocent", "l": "Brittisk", "d": "Varje säsong är ett eget fall om någon som friats efter flera år. I säsong 2 är det en lärare som anklagats för att ha dödat en skolpojke.", "v": "Med Katherine Kelly från Kråkflickan (4), i säsong 2."}
+];
+const seen = [
+  ["Happy Valley","Brittisk",5],["Sherwood","Brittisk",5],["Criminal Record","Brittisk",5],
+  ["Unforgotten","Brittisk",5],["The Responder","Brittisk",5],["Broadchurch","Brittisk",5],
+  ["Adolescence","Brittisk",5],["Bron","Svensk-dansk",5],["Brottet","Dansk",5],
+  ["Den goda stämningen","Dansk",5],["Kin","Irländsk",5],["Krönikan","Dansk",5],["Falsk identitet","Fransk",5],
+  ["Slow Horses","Brittisk",4.8],["Homeland","Amerikansk",4.8],["Morden","Svensk",4.5],["Tunna blå linjen","Svensk",4.5],
+  ["Kastanjemannen","Dansk",4.5],["Borgen","Dansk",4.5],["Dept. Q","Skotsk",4],
+  ["Morden i Pembroke","Walesisk",4],["Brottsplats Wales","Walesisk",4],["I brottets spår","Walesisk",4],
+  ["Kråkflickan","Brittisk",4],["Hundarna","Svensk",4],["Line of duty","Brittisk",4],
+  ["Den som dräper","Dansk",4],["Kärlek & Anarki","Svensk",4],["Stranger Things","Amerikansk",4],["Solsidan","Svensk",4],["Shetland","Skotsk",3.8],["Efterforskningen","Dansk",3.5],
+  ["Bergerac","Brittisk",3.5],["Dips","Svensk",3.5],["Chelsea detective","Brittisk",3]
+];
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* Korta beskrivningar av Betygsatta. Skrivna av Claude och kontrollerade mot källan 17 okt 2026 */
+const om = {
+  "Happy Valley":"Polissergeanten Catherine Cawood i West Yorkshire möter åter mannen hon håller ansvarig för dotterns död.",
+  "Sherwood":"Två mord i en gruvby i Nottinghamshire blottar en splittring som levt kvar sedan gruvstrejken 1984–85.",
+  "Criminal Record":"En polis i början av karriären och en erfaren kommissarie hamnar på kollisionskurs när ett anonymt samtal leder dem till ett gammalt mordfall.",
+  "Unforgotten":"En polisgrupp i London utreder gamla mord och försvinnanden när kvarlevor hittas långt senare, och följer människor med koppling till offret.",
+  "The Responder":"En degraderad polis i Liverpool kör nattpass och försöker hjälpa en missbrukare, samtidigt som en korruptionsutredning riktas mot honom.",
+  "Broadchurch":"En pojkes död i en liten kustort i Dorset sätter grannar mot varandra medan två poliser leder utredningen.",
+  "Adolescence":"En 13-åring grips misstänkt för mordet på en klasskamrat. Varje avsnitt är filmat i en enda tagning.",
+  "Bron":"Delar av två olika kvinnor hittas mitt på Öresundsbron, och den svenska polisen Saga Norén måste samarbeta med en dansk kollega.",
+  "Brottet":"Kommissarie Sarah Lund i Köpenhamn utreder ett nytt mord varje säsong. I den första når fallet med en ung kvinna in i politiken.",
+  "Den goda stämningen":"Syskonen Eva och Mads tvingas möta sina egna och varandras demoner när Evas hemliga affär och Mads missbruk hotar att splittra familjen.",
+  "Kin":"En kriminell familj i Dublin dras in i ett gängkrig med en rivaliserande gängledare efter att en av dem dödats.",
+  "Krönikan":"Två familjer i Köpenhamn följs från 1949 till 1970-talet, samtidigt som dansk tv växer fram.",
+  "Falsk identitet":"Agenter i den franska underrättelsetjänsten lever under falska identiteter utomlands, och en av dem kommer hem från Syrien med egna hemligheter.",
+  "Slow Horses":"Avdankade MI5-agenter, förvisade till en sliten avdelning under den cyniske Jackson Lamb, dras in i allvarliga spionhärvor.",
+  "Homeland":"CIA-agenten Carrie Mathison är övertygad om att en amerikansk krigsfånge som kommit hem har värvats av al-Qaida.",
+  "Morden":"Kommissarie CG Ljung måste återuppta ett olöst mord från 25 år tidigare innan det preskriberas, när en kropp hittas på en ö i Stockholms skärgård.",
+  "Tunna blå linjen":"Sex poliser i Malmö och deras liv i och utanför jobbet, med mer fokus på personligt drama än på brottsfall.",
+  "Kastanjemannen":"En mördare dödar mödrar i Köpenhamn och lämnar figurer av kastanjer efter sig, och en polis och en Europol-utredare kopplar dem till en försvunnen flicka.",
+  "Borgen":"Politikern Birgitte Nyborg blir oväntat Danmarks första kvinnliga statsminister och ska balansera makt, medier och familj.",
+  "Dept. Q":"En sårad och besvärlig kommissarie i Edinburgh får en källaravdelning för olösta fall och tar sig an en försvunnen åklagare.",
+  "Morden i Pembroke":"Verklig händelse. En polis i Wales återupptar 2006 två olösta mord från 1980-talet, och ny DNA-teknik och gamla vittnesuppgifter leder fram till seriemördaren.",
+  "Brottsplats Wales":"Kommissarie Tom Mathias flyttar till Aberystwyth för att lämna sitt förflutna och kallas genast till en brutal brottsplats i det karga landskapet.",
+  "I brottets spår":"En ung kvinna hittas död i norra Wales, och två poliser letar efter en förövare som har hållit henne fången.",
+  "Kråkflickan":"En kommissarie och en psykoterapeut i Bristol jagar en mördare av unga män, och spåren leder till gamla övergrepp.",
+  "Hundarna":"Advokaterna Kalle Matsson och Sasha Moradi försvarar klienter åtalade för grova brott, och fallen sliter på deras egna familjer.",
+  "Line of duty":"En enhet som granskar poliskorruption utreder misstänkta kolleger, och fallen visar sig höra ihop med en större konspiration.",
+  "Den som dräper":"Ett team inom Köpenhamnspolisen, bland dem Katrine Ries Jensen och Thomas Schaeffer, jagar seriemördare.",
+  "Kärlek & Anarki":"En gift konsult på ett förlag i Stockholm inleder en lek med en yngre IT-kille där de utmanar sociala normer, tills det går överstyr.",
+  "Stranger Things":"När en pojke försvinner i en småstad i Indiana på 1980-talet upptäcker hans vänner hemliga experiment och en annan dimension.",
+  "Solsidan":"Tandläkaren Alex flyttar tillbaka till barndomens Saltsjöbaden med sin gravida sambo Anna, och hans mamma och gamla vänner krånglar till det.",
+  "Shetland":"Poliser löser mord på Shetlandsöarna, först under Jimmy Pérez och senare under Ruth Calder.",
+  "Efterforskningen":"Den danska polisutredningen av mordet på den svenska journalisten Kim Wall.",
+  "Bergerac":"En modern version av den gamla serien. Kommissarie Bergerac återvänder till jobbet när en medlem av en av Jerseys rikaste familjer mördas, och vill både lösa fallet och besegra sina egna demoner.",
+  "Dips":"Satir om två praktikanter och deras handledare på protokollenheten vid Utrikesdepartementet.",
+  "Chelsea detective":"Kommissarie Max Arnold och hans kollega utreder mord bakom den glamorösa fasaden i Chelsea i London."
+};
+/* Källa för varje beskrivning: [namn, adress, 1 = osäkrare källa] */
+const kalla = {
+"Happy Valley": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Happy_Valley_(TV_series)",
+0
+],
+"Sherwood": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Sherwood_(2022_TV_series)",
+0
+],
+"Criminal Record": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Criminal_Record_(TV_series)",
+0
+],
+"Unforgotten": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Unforgotten",
+0
+],
+"The Responder": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Responder",
+0
+],
+"Broadchurch": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Broadchurch",
+0
+],
+"Adolescence": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Adolescence_(TV_series)",
+0
+],
+"Bron": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Bridge_(2011_TV_series)",
+0
+],
+"Brottet": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Killing_(Danish_TV_series)",
+0
+],
+"Kin": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Kin_(Irish_TV_series)",
+0
+],
+"Krönikan": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Kr%C3%B8niken",
+0
+],
+"Falsk identitet": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Bureau_(TV_series)",
+0
+],
+"Slow Horses": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Slow_Horses",
+0
+],
+"Homeland": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Homeland_(TV_series)",
+0
+],
+"Tunna blå linjen": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Thin_Blue_Line_(Swedish_TV_series)",
+0
+],
+"Kastanjemannen": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Chestnut_Man",
+0
+],
+"Borgen": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Borgen_(TV_series)",
+0
+],
+"Dept. Q": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Dept._Q",
+0
+],
+"Morden i Pembroke": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Pembrokeshire_Murders",
+0
+],
+"I brottets spår": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Hidden_(2018_TV_series)",
+0
+],
+"Kråkflickan": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Crow_Girl",
+0
+],
+"Line of duty": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Line_of_Duty",
+0
+],
+"Den som dräper": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Those_Who_Kill",
+0
+],
+"Kärlek & Anarki": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Love_%26_Anarchy_(TV_series)",
+0
+],
+"Stranger Things": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Stranger_Things",
+0
+],
+"Solsidan": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Solsidan_(TV_series)",
+0
+],
+"Shetland": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Shetland_(TV_series)",
+0
+],
+"Efterforskningen": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Investigation_(TV_series)",
+0
+],
+"Bergerac": [
+"SVT Play",
+"https://www.svtplay.se/bergerac",
+0
+],
+"Dips": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Dips_(TV_series)",
+0
+],
+"Chelsea detective": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Chelsea_Detective",
+0
+],
+"Den goda stämningen": [
+"SVT Play",
+"https://www.svtplay.se/den-goda-stamningen",
+0
+],
+"Brottsplats Wales": [
+"SVT Play",
+"https://www.svtplay.se/video/jmL9mLM/brottsplats-wales/1-devils-bridge",
+0
+],
+"Morden": [
+"Moviezine",
+"https://www.moviezine.se/nyheter/miniserie-morden-med-kjell-bergqvist-fran-2008-kommer-till-svt-play",
+1
+],
+"Hundarna": [
+"Moviezine",
+"https://www.moviezine.se/nyheter/domen-har-fallit-advokatdramat-hundarna-ar-bra-pa-riktigt",
+1
+],
+"Time": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Time_(2021_TV_series)",
+0
+],
+"Des": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Des_(TV_series)",
+0
+],
+"The Long Shadow": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Long_Shadow_(TV_series)",
+0
+],
+"River": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/River_(TV_series)",
+0
+],
+"A Confession": [
+"Rotten Tomatoes",
+"https://www.rottentomatoes.com/tv/a_confession/s01",
+1
+],
+"The Accident": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Accident_(British_TV_series)",
+0
+],
+"Top Boy": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Top_Boy",
+0
+],
+"Händelser vid vatten": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Blackwater_(TV_series)",
+0
+],
+"Arvingerne": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/The_Legacy_(TV_series)",
+0
+],
+"Kalifat": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Caliphate_(TV_series)",
+0
+],
+"Herrens veje": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Herrens_Veje",
+0
+],
+"Mayflies": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Mayflies_(TV_series)",
+0
+],
+"Trigger Point": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Trigger_Point_(TV_series)",
+0
+],
+"Innocent": [
+"Wikipedia",
+"https://en.wikipedia.org/wiki/Innocent_(TV_series)",
+0
+]
+};
+/* Originaltitel när den skiljer sig från den svenska */
+const orig = {
+"Bron": "Broen",
+"Brottet": "Forbrydelsen",
+"Krönikan": "Krøniken",
+"Kastanjemannen": "Kastanjemanden",
+"Den goda stämningen": "Den gode stemning",
+"Falsk identitet": "Le Bureau des Légendes",
+"Den som dräper": "Den som dræber",
+"Morden i Pembroke": "The Pembrokeshire Murders",
+"Brottsplats Wales": "Hinterland (Y Gwyll)",
+"I brottets spår": "Hidden (Craith)",
+"Kråkflickan": "The Crow Girl"
+};
+const sok = {};
+const jw = n => "https://www.google.com/search?q=" + encodeURIComponent((sok[n] || n) + " serie streama");
+/* Antal säsonger och avsnitt enligt Wikipedia m.fl., 17 okt 2026 */
+const omf = {
+"Happy Valley": "3 säsonger, 18 avsnitt",
+"Sherwood": "2 säsonger, 12 avsnitt",
+"Criminal Record": "2 säsonger, 16 avsnitt",
+"Unforgotten": "6 säsonger, 36 avsnitt",
+"The Responder": "2 säsonger, 12 avsnitt",
+"Broadchurch": "3 säsonger, 24 avsnitt",
+"Adolescence": "1 säsong, 4 avsnitt",
+"Bron": "4 säsonger, 38 avsnitt",
+"Brottet": "3 säsonger, 40 avsnitt",
+"Kin": "2 säsonger, 16 avsnitt",
+"Krönikan": "22 avsnitt",
+"Falsk identitet": "5 säsonger, 50 avsnitt",
+"Slow Horses": "5 säsonger, 30 avsnitt, säsong 6 hösten 2026",
+"Homeland": "8 säsonger, 96 avsnitt",
+"Den goda stämningen": "1 säsong, 8 avsnitt",
+"Morden": "1 säsong, 6 avsnitt",
+"Tunna blå linjen": "3 säsonger, 24 avsnitt",
+"Kastanjemannen": "2 säsonger, 12 avsnitt",
+"Borgen": "4 säsonger, 38 avsnitt",
+"Dept. Q": "1 säsong, 9 avsnitt",
+"Morden i Pembroke": "1 säsong, 3 avsnitt",
+"Brottsplats Wales": "3 säsonger, 26 avsnitt",
+"I brottets spår": "3 säsonger, 20 avsnitt",
+"Kråkflickan": "1 säsong, 6 avsnitt",
+"Hundarna": "1 säsong, 8 avsnitt",
+"Line of duty": "6 säsonger, 36 avsnitt",
+"Den som dräper": "1 säsong, 10 avsnitt",
+"Kärlek & Anarki": "2 säsonger, 16 avsnitt",
+"Stranger Things": "5 säsonger, 42 avsnitt",
+"Solsidan": "9 säsonger, 90 avsnitt",
+"Shetland": "10 säsonger, 56 avsnitt",
+"Efterforskningen": "1 säsong, 6 avsnitt",
+"Bergerac": "2 säsonger, 12 avsnitt",
+"Dips": "3 säsonger, 18 avsnitt",
+"Chelsea detective": "4 säsonger, 16 avsnitt",
+"Time": "2 säsonger, 6 avsnitt, säsong 3 sänds i oktober 2026",
+"Des": "1 säsong, 3 avsnitt",
+"The Long Shadow": "1 säsong, 7 avsnitt",
+"River": "1 säsong, 6 avsnitt",
+"A Confession": "1 säsong, 6 avsnitt",
+"The Accident": "1 säsong, 4 avsnitt",
+"Top Boy": "5 säsonger, 32 avsnitt",
+"Händelser vid vatten": "1 säsong, 6 avsnitt",
+"Arvingerne": "3 säsonger, 26 avsnitt",
+"Kalifat": "1 säsong, 8 avsnitt",
+"Herrens veje": "2 säsonger, 20 avsnitt",
+"Mayflies": "1 säsong, 2 avsnitt",
+"Trigger Point": "4 säsonger, 24 avsnitt",
+"Innocent": "2 säsonger, 8 avsnitt"
+};
+/* Läget 17 okt 2026: fler säsonger eller avslutad */
+const lage = {
+"Happy Valley": "Avslutad",
+"Sherwood": "Säsong 3 är beslutad",
+"Criminal Record": "Inget beslut om säsong 3",
+"Unforgotten": "Säsong 7 är beslutad",
+"The Responder": "Inget besked om säsong 3",
+"Broadchurch": "Avslutad",
+"Adolescence": "Miniserie, en fortsättning har diskuterats men inte beslutats",
+"Bron": "Avslutad",
+"Brottet": "Avslutad",
+"Den goda stämningen": "Inget besked om fler säsonger",
+"Kin": "Oklart, en säsong 3 rapporterades 2024 men dementerades 2025",
+"Krönikan": "Avslutad",
+"Falsk identitet": "Avslutad",
+"Slow Horses": "Säsong 7 är beslutad",
+"Homeland": "Avslutad",
+"Morden": "Miniserie, avslutad",
+"Tunna blå linjen": "Fyra nya avsnitt kommer i december 2026",
+"Kastanjemannen": "Ingen säsong 3 beslutad",
+"Borgen": "Avslutad",
+"Dept. Q": "Säsong 2 är beslutad",
+"Morden i Pembroke": "Miniserie, avslutad",
+"Brottsplats Wales": "Avslutad",
+"I brottets spår": "Avslutad",
+"Kråkflickan": "Säsong 2 är under utveckling",
+"Hundarna": "Säsong 2 är på gång",
+"Line of duty": "Säsong 7 kommer 2027",
+"Den som dräper": "Avslutad, en fristående fortsättning kom 2019",
+"Kärlek & Anarki": "Inget besked om fler säsonger sedan 2022",
+"Stranger Things": "Avslutad",
+"Solsidan": "En tionde och sista säsong är beslutad",
+"Shetland": "Säsong 11 är beslutad",
+"Efterforskningen": "Miniserie, avslutad",
+"Bergerac": "Säsong 3 är beslutad",
+"Dips": "Inget besked om säsong 4",
+"Chelsea detective": "Inget besked om säsong 5",
+"Time": "Säsong 3 sänds nu",
+"Des": "Miniserie, avslutad",
+"The Long Shadow": "Miniserie, avslutad",
+"River": "Inget besked om fler säsonger",
+"A Confession": "Miniserie, avslutad",
+"The Accident": "Miniserie, avslutad",
+"Top Boy": "Avslutad",
+"Händelser vid vatten": "Inget besked om fler säsonger",
+"Arvingerne": "Avslutad",
+"Kalifat": "Inget besked om fler säsonger",
+"Herrens veje": "Avslutad",
+"Mayflies": "Miniserie i två delar",
+"Trigger Point": "Inget besked om säsong 5",
+"Innocent": "Inget besked om fler säsonger"
+};
+/* Medverkande: de första namnen i rollistan enligt samma källa som beskrivningen, 17 okt 2026 */
+const roll = {
+"Happy Valley": "Sarah Lancashire, Siobhan Finneran, James Norton",
+"Sherwood": "David Morrissey, Lesley Manville, Claire Rushbrook",
+"Criminal Record": "Peter Capaldi, Cush Jumbo, Zoë Wanamaker",
+"Unforgotten": "Nicola Walker, Sanjeev Bhaskar, Sinéad Keenan",
+"The Responder": "Martin Freeman, Adelayo Adedayo, Warren Brown",
+"Broadchurch": "David Tennant, Olivia Colman, Jodie Whittaker",
+"Adolescence": "Stephen Graham, Ashley Walters, Faye Marsay, Owen Cooper",
+"Bron": "Sofia Helin, Kim Bodnia, Thure Lindhardt",
+"Brottet": "Sofie Gråbøl, Søren Malling, Mikael Birkkjær",
+"Den goda stämningen": "Iben Hjejle, Evin Ahmad, Pilou Asbæk",
+"Kin": "Charlie Cox, Clare Dunne, Aidan Gillen",
+"Krönikan": "Anders W. Berthelsen, Anne Louise Hassing, Maibritt Saerens",
+"Falsk identitet": "Mathieu Kassovitz, Sara Giraudeau, Jean-Pierre Darroussin",
+"Slow Horses": "Gary Oldman, Jack Lowden, Kristin Scott Thomas",
+"Homeland": "Claire Danes, Damian Lewis, Morena Baccarin, Mandy Patinkin",
+"Morden": "Kjell Bergqvist",
+"Tunna blå linjen": "Amanda Jansson, Oscar Töringe, Gizem Erdogan",
+"Kastanjemannen": "Danica Curcic, Mikkel Boe Følsgaard, David Dencik",
+"Borgen": "Sidse Babett Knudsen, Birgitte Hjort Sørensen, Pilou Asbæk",
+"Dept. Q": "Matthew Goode, Kelly Macdonald, Chloe Pirrie, Alexej Manvelov",
+"Morden i Pembroke": "Luke Evans, Keith Allen, Caroline Berry",
+"Brottsplats Wales": "Richard Harrington, Mali Harries, Alex Harries",
+"I brottets spår": "Sian Reese-Williams, Siôn Alun Davies, Nia Roberts",
+"Kråkflickan": "Katherine Kelly, Dougray Scott, Eve Myles",
+"Hundarna": "Björn Bengtsson, Arvin Kananian",
+"Line of duty": "Lennie James, Martin Compston, Vicky McClure, Adrian Dunbar",
+"Den som dräper": "Laura Bach, Jakob Cedergren, Lars Mikkelsen",
+"Kärlek & Anarki": "Ida Engvoll, Björn Mosten, Johannes Bah Kuhnke",
+"Stranger Things": "Winona Ryder, David Harbour, Finn Wolfhard, Millie Bobby Brown",
+"Solsidan": "Felix Herngren, Mia Skäringer, Johan Rheborg, Josephine Bornebusch, Henrik Dorsin",
+"Shetland": "Douglas Henshall, Alison O'Donnell, Steven Robertson, Ashley Jensen",
+"Efterforskningen": "Søren Malling, Pilou Asbæk, Pernilla August",
+"Bergerac": "Damien Molony, Zoë Wanamaker, Philip Glenister",
+"Dips": "Jesper Rönndahl, Marie Agerhäll, Moa Lundqvist",
+"Chelsea detective": "Adrian Scarborough, Sonita Henry, Vanessa Emme",
+"Time": "Sean Bean, Stephen Graham, Jodie Whittaker",
+"Des": "David Tennant, Daniel Mays, Jason Watkins",
+"The Long Shadow": "Toby Jones, David Morrissey, Daniel Mays",
+"River": "Stellan Skarsgård, Nicola Walker, Adeel Akhtar",
+"A Confession": "Martin Freeman, Imelda Staunton, Siobhan Finneran",
+"The Accident": "Sarah Lancashire, Mark Lewis Jones, Sidse Babett Knudsen",
+"Top Boy": "Ashley Walters, Kane Robinson",
+"Händelser vid vatten": "Pernilla August, Alba August, Rolf Lassgård",
+"Arvingerne": "Trine Dyrholm, Jesper Christensen, Marie Bach Hansen",
+"Kalifat": "Gizem Erdogan, Amed Bozan, Aliette Opheim",
+"Herrens veje": "Lars Mikkelsen, Ann Eleonora Jørgensen, Simon Sears",
+"Mayflies": "Martin Compston, Tony Curran, Ashley Jensen",
+"Trigger Point": "Vicky McClure",
+"Innocent": "Lee Ingleby, Katherine Kelly"
+};
+const namnLista = n => roll[n] ? roll[n].split(", ").map(x=>x.trim()) : [];
+const serierMed = {};
+for (const n of Object.keys(roll)) for (const a of namnLista(n)) (serierMed[a] ??= []).push(n);
+const ochLista = xs => xs.length < 2 ? xs.join("") : xs.slice(0,-1).join(", ") + " och " + xs[xs.length-1];
+let pid = 0;
+const row = (n, l, d=om[n]) => { const id = "p" + (pid++); return {
+  head:`<button class="more" aria-expanded="false" aria-controls="${id}"><span class="chev" aria-hidden="true"></span>${esc(n)}</button>`,
+  panel:`<div class="panel" id="${id}" hidden>
+    ${d?`<p>${esc(d)}</p>`:""}
+    <p class="pmeta">${[l?`<span class="land">${esc(l)}</span>`:"", omf[n]?esc(omf[n]):"", orig[n]?`Originaltitel: <i>${esc(orig[n])}</i>`:""].filter(Boolean).join(" · ")}</p>
+    ${lage[n]?`<p class="pmeta">Läget 17 okt 2026: ${esc(lage[n])}${/avslutad/i.test(lage[n])?"":` · <a class="nyhet" href="https://www.google.com/search?q=${encodeURIComponent((orig[n]||n)+" ny säsong")}" target="_blank" rel="noopener">Sök om det finns en ny säsong nu</a>`}</p>`:""}
+    ${roll[n]?`<div class="cast"><span class="castlbl">Medverkande</span><div class="actors">${namnLista(n).map(a=>`<button class="actor" type="button" data-name="${esc(a)}" aria-label="Visa serier med ${esc(a)}${serierMed[a].length>1?`, också i ${esc(ochLista(serierMed[a].filter(x=>x!==n)))}`:""}"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${esc(a)}${serierMed[a].length>1?`<span class="antal">${serierMed[a].length}</span><span class="tip" role="tooltip">Också i ${esc(ochLista(serierMed[a].filter(x=>x!==n)))}</span>`:""}</button>`).join("")}</div></div>`:""}
+    ${kalla[n]?`<p class="src">Källa: <a href="${kalla[n][1]}" target="_blank" rel="noopener">${esc(kalla[n][0])}</a>${kalla[n][2]?' <span class="warn">osäkrare källa, varken kanalens egen sida eller Wikipedia</span>':''}</p>`:`<p class="src"><span class="warn">Källa saknas</span></p>`}
+    <a href="${jw(n)}" target="_blank" rel="noopener">Sök på Google var den går att streama</a></div>`}; };
+/* Mina bedömningar, godkända i chatten 17 okt 2026 */
+const lattsam = ["Chelsea detective","Shetland","Slow Horses","Kärlek & Anarki","Solsidan","Dips"];
+const ingenTon = ["Krönikan", "Borgen", "Arvingerne", "Mayflies"];
+const inteKrim = ["Krönikan", "Borgen", "Slow Horses", "Homeland", "Falsk identitet", "Kärlek & Anarki", "Stranger Things", "Solsidan", "Dips", "Den goda stämningen", "The Accident", "Arvingerne", "Kalifat", "Herrens veje", "Mayflies"];
+const komedi = ["Solsidan","Dips","Kärlek & Anarki"];
+const lander = l => ({"Brittisk":"bi","Skotsk":"bi","Walesisk":"bi","Irländsk":"bi","Dansk":"dk","Svensk":"se","Svensk-dansk":"dk se"})[l] || "";
+const attrs = (n,l) => `data-land="${lander(l)}" data-mork="${!lattsam.includes(n)&&!ingenTon.includes(n)}" data-ejkrim="${inteKrim.includes(n)}" data-komedi="${komedi.includes(n)}" data-titel="${esc((n+" "+(orig[n]||"")+" "+(roll[n]||"")).toLowerCase())}"`;
+document.getElementById("rec").innerHTML = rec.map((r,i)=>{ const x=row(r.n,r.l,r.d); return `
+  <li class="${i===0?'top':''}" ${attrs(r.n,r.l)}>
+    <div class="name">${x.head}</div>
+    <div class="why">${esc(r.v)}</div>
+    ${x.panel}
+  </li>`}).join("");
+const stars = v => Array.from({length:5},(_,i)=>{const f=Math.max(0,Math.min(1,v-i));return `<span><i style="width:${f*100}%"></i></span>`}).join("");
+const betygGrupp = v => v>=5 ? "Betyg 5" : v>=4.5 ? "Betyg 4,5–4,8" : v>=4 ? "Betyg 4" : "Betyg under 4";
+const landGrupp = l => ({"Brittisk":"Brittiska och irländska","Skotsk":"Brittiska och irländska","Walesisk":"Brittiska och irländska","Irländsk":"Brittiska och irländska","Dansk":"Danska","Svensk":"Svenska","Svensk-dansk":"Svensk-danska"})[l] || "Övriga";
+const landOrdning = ["Brittiska och irländska","Danska","Svenska","Svensk-danska","Övriga"];
+function renderSeen(mode){
+  let items = seen.map(([n,l,v])=>({n,l,v})), grupp = i => betygGrupp(i.v);
+  if (mode==="titel"){ items.sort((a,b)=>a.n.localeCompare(b.n,"sv")); grupp = null; }
+  if (mode==="land"){ items.sort((a,b)=>landOrdning.indexOf(landGrupp(a.l))-landOrdning.indexOf(landGrupp(b.l)) || b.v-a.v); grupp = i => landGrupp(i.l); }
+  let html = "", last = null;
+  for (const {n,l,v} of items){
+    if (grupp){ const g = grupp({n,l,v}); if (g!==last){ html += `<li class="grp" role="presentation">${esc(g)}</li>`; last = g; } }
+    const x = row(n,l);
+    html += `
+  <li ${attrs(n,l)}>
+    <div class="name">${x.head}</div>
+    <div class="rating" aria-label="Betyg ${v} av 5"><div class="stars">${stars(v)}</div><span class="num">${String(v).replace(".",",")}</span></div>
+    ${x.panel}
+  </li>`;
+  }
+  document.getElementById("seen").innerHTML = html;
+}
+renderSeen("betyg");
+const state = {land:"", mork:false, ejkrim:false, komedi:false, q:""};
+function apply(){
+  for (const id of ["rec","seen"]){
+    const ul = document.getElementById(id);
+    let shown = 0;
+    for (const li of ul.querySelectorAll("li:not(.grp)")){
+      const ok = (!state.land || li.dataset.land.split(" ").includes(state.land))
+        && (!state.mork || li.dataset.mork==="true")
+        && (!state.ejkrim || li.dataset.ejkrim==="true")
+        && (!state.komedi || li.dataset.komedi==="true")
+        && (!state.q || li.dataset.titel.includes(state.q));
+      li.hidden = !ok; if (ok) shown++;
+    }
+    for (const g of ul.querySelectorAll("li.grp")){
+      let n = g.nextElementSibling, any = false;
+      while (n && !n.classList.contains("grp")){ if (!n.hidden) any = true; n = n.nextElementSibling; }
+      g.hidden = !any;
+    }
+    const synliga = [...ul.children].filter(li => !li.hidden);
+    for (const li of ul.children) li.classList.toggle("last", li === synliga[synliga.length-1]);
+    const total = ul.querySelectorAll("li:not(.grp)").length;
+    const filtered = state.land || state.mork || state.ejkrim || state.komedi || state.q;
+    document.getElementById(id+"-count").textContent = filtered ? `${shown} av ${total} serier` : `${total} serier`;
+    let empty = ul.parentElement.querySelector(".empty");
+    if (!empty){ empty = document.createElement("p"); empty.className="empty"; empty.textContent="Inga serier här med de här filtren."; ul.after(empty); }
+    empty.hidden = shown > 0;
+  }
+}
+document.querySelectorAll("button[data-land]").forEach(b=>b.addEventListener("click",()=>{
+  state.land = b.dataset.land; oppnaAvsnitt();
+  document.querySelectorAll("button[data-land]").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+  apply();
+}));
+document.querySelectorAll("[data-flag]").forEach(b=>b.addEventListener("click",()=>{
+  const k = b.dataset.flag; state[k] = !state[k]; oppnaAvsnitt();
+  b.setAttribute("aria-pressed", String(state[k]));
+  apply();
+}));
+const qEl = document.getElementById("q"), qClear = document.getElementById("qclear");
+function visaSkadespelare(){
+  const a = Object.keys(serierMed).find(x => x.toLowerCase() === state.q);
+  const more = document.getElementById("rec-more");
+  qClear.hidden = !state.q;
+  more.hidden = !a;
+  if (a){
+    more.innerHTML = `<a href="https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(a)}" target="_blank" rel="noopener">Se fler serier med ${esc(a)} på Wikipedia</a>`;
+  }
+}
+function oppnaAvsnitt(){
+  for (const t of document.querySelectorAll(".toggle")){ t.setAttribute("aria-expanded","true"); document.getElementById(t.getAttribute("aria-controls")).hidden = false; }
+}
+function overblick(){
+  for (const b of document.querySelectorAll('.more[aria-expanded="true"]')){ b.setAttribute("aria-expanded","false"); document.getElementById(b.getAttribute("aria-controls")).hidden = true; }
+  for (const t of document.querySelectorAll(".toggle")){ t.setAttribute("aria-expanded","true"); document.getElementById(t.getAttribute("aria-controls")).hidden = false; }
+}
+qEl.addEventListener("input",e=>{ state.q = e.target.value.trim().toLowerCase(); overblick(); apply(); visaSkadespelare(); });
+document.addEventListener("click", e=>{
+  const a = e.target.closest(".actor");
+  if (a){ qEl.value = a.dataset.name; state.q = a.dataset.name.toLowerCase(); overblick(); apply(); visaSkadespelare();
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.querySelector(".rec").scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"start"}); return; }
+  if (e.target.closest(".qclear")){ qEl.value = ""; state.q = ""; apply(); visaSkadespelare(); qEl.focus(); }
+});
+apply();
+document.querySelectorAll(".toggle").forEach(b=>b.addEventListener("click",()=>{
+  const open = b.getAttribute("aria-expanded")!=="true";
+  b.setAttribute("aria-expanded", String(open));
+  document.getElementById(b.getAttribute("aria-controls")).hidden = !open;
+}));
+document.addEventListener("click", e=>{
+  const b = e.target.closest(".more"); if (!b) return;
+  const open = b.getAttribute("aria-expanded")!=="true";
+  b.setAttribute("aria-expanded", String(open));
+  document.getElementById(b.getAttribute("aria-controls")).hidden = !open;
+});
+document.getElementById("sort").addEventListener("change", e=>{ renderSeen(e.target.value); apply(); });
+const fbar = document.querySelector(".filters");
+const mark = () => fbar.classList.toggle("stuck", window.scrollY > 0 && fbar.getBoundingClientRect().top <= (parseFloat(getComputedStyle(fbar).top)||0) + 1);
+window.addEventListener("scroll", mark, {passive:true}); mark();
+</script>
+
+</body>
+</html>
